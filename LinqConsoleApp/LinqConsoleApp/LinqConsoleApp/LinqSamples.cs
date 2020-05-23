@@ -214,8 +214,25 @@ namespace LinqConsoleApp
         /// </summary>
         public void Przyklad2()
         {
-            
+            var res = from emp in Emps
+                      where emp.Job == "Frontend programmer"
+                      && emp.Salary > 1000
+                      orderby emp.Ename descending
+                      select emp;
 
+            var res2 = Emps
+                .Where(n => n.Job == "Frontend programmer")
+                .Where(n => n.Salary > 1000)
+                .OrderByDescending(n => n.Ename);
+
+            foreach (Emp emp in res)
+            {
+                Console.WriteLine(emp);
+            }
+            foreach (Emp emp in res2)
+            {
+                Console.WriteLine(emp);
+            }
         }
 
         /// <summary>
@@ -223,7 +240,11 @@ namespace LinqConsoleApp
         /// </summary>
         public void Przyklad3()
         {
-          
+            var res = (from emp in Emps
+                       select emp.Salary).Max();
+            var res2 = Emps.Select(n => n.Salary).Max();
+            Console.WriteLine(res);
+            Console.WriteLine(res2);
         }
 
         /// <summary>
@@ -231,7 +252,19 @@ namespace LinqConsoleApp
         /// </summary>
         public void Przyklad4()
         {
+            var res = from empOut in Emps
+                      where empOut.Salary == (from emp in Emps select emp.Salary).Max()
+                      select empOut;
 
+            var res2 = Emps.Where(n => n.Salary == Emps.Select(n1 => n1.Salary).Max());
+            foreach (Emp emp in res)
+            {
+                Console.WriteLine(emp);
+            }
+            foreach (Emp emp in res2)
+            {
+                Console.WriteLine(emp);
+            }
         }
 
         /// <summary>
@@ -239,7 +272,26 @@ namespace LinqConsoleApp
         /// </summary>
         public void Przyklad5()
         {
+            var res = from emp in Emps
+                      select new
+                      {
+                          Nazwisko = emp.Ename,
+                          Praca = emp.Job
+                      };
+            var res2 = Emps.Select(n => new
+            {
+                Nazwisko = n.Ename,
+                Praca = n.Job
+            });
 
+            foreach (var emp in res)
+            {
+                Console.WriteLine(emp);
+            }
+            foreach (var emp in res2)
+            {
+                Console.WriteLine(emp);
+            }
         }
 
         /// <summary>
@@ -249,7 +301,37 @@ namespace LinqConsoleApp
         /// </summary>
         public void Przyklad6()
         {
+            var res = from emp in Emps
+                      join dept in Depts
+                      on emp.Deptno equals dept.Deptno
+                      select new
+                      {
+                          emp.Ename,
+                          emp.Job,
+                          dept.Dname
+                      };
 
+
+            var res2 = Emps.Join(Depts, emp => emp.Deptno, dept => dept.Deptno, (emp, dept) => new
+            {
+                emp,
+                dept
+            }).Select(n => new
+            {
+                n.emp.Ename,
+                n.emp.Job,
+                n.dept.Dname
+            });
+
+            foreach (var emp in res)
+            {
+                Console.WriteLine(emp);
+            }
+            Console.WriteLine("--------------------");
+            foreach (var emp in res2)
+            {
+                Console.WriteLine(emp);
+            }
         }
 
         /// <summary>
@@ -257,7 +339,19 @@ namespace LinqConsoleApp
         /// </summary>
         public void Przyklad7()
         {
+            var res = Emps.GroupBy(
+                emp => emp.Job,
+                emp => 1,
+                (key, b) => new
+                {
+                    Praca = key,
+                    LiczbaPracownikow = b.Count()
+                });
 
+            foreach (var e in res)
+            {
+                Console.WriteLine(e);
+            }
         }
 
         /// <summary>
@@ -266,7 +360,10 @@ namespace LinqConsoleApp
         /// </summary>
         public void Przyklad8()
         {
-
+            var res = Emps.Any(n => n.Job == "Backend programmer");
+            var res1 = Emps.Where(n => n.Job == "Backend programmer").Count() > 0;
+            var res2 = Emps.ToList().Exists(n => n.Job == "Backend programmer");
+            Console.WriteLine(res);
         }
 
         /// <summary>
@@ -275,7 +372,9 @@ namespace LinqConsoleApp
         /// </summary>
         public void Przyklad9()
         {
-
+            var res = Emps.Where(n => n.Job == "Frontend programmer")
+                .OrderByDescending(n => n.HireDate)
+                .Take(1);
         }
 
         /// <summary>
@@ -285,20 +384,37 @@ namespace LinqConsoleApp
         /// </summary>
         public void Przyklad10Button_Click()
         {
-
+            var res = Emps.Select(emp => new{
+                Ename = emp.Ename,
+                Job = emp.Job,
+                Hiredate = emp.HireDate.ToString()
+            }).Union(Emps.Select(emp => new{
+                Ename = "Brak wartości",
+                Job = "null",
+                Hiredate = "null"
+            }));
         }
 
         //Znajdź pracownika z najwyższą pensją wykorzystując metodę Aggregate()
         public void Przyklad11()
         {
-
+            var res = Emps.Aggregate((p, n) => n.Salary > p.Salary ? n : p);
+            Console.WriteLine(res);
         }
 
         //Z pomocą języka LINQ i metody SelectMany wykonaj złączenie
         //typu CROSS JOIN
         public void Przyklad12()
         {
-
+            var res = Emps.SelectMany(emp => Emps, (e1, e2) => new
+            {
+                e1,
+                e2
+            });
+            foreach (var e in res)
+            {
+                Console.WriteLine(e);
+            }
         }
     }
 }
