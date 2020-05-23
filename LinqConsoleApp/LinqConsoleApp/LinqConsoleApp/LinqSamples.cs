@@ -393,6 +393,11 @@ namespace LinqConsoleApp
                 Job = "null",
                 Hiredate = "null"
             }));
+
+            foreach (var emp in res)
+            {
+                Console.WriteLine(emp);
+            }
         }
 
         //Znajdź pracownika z najwyższą pensją wykorzystując metodę Aggregate()
